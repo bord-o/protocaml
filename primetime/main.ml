@@ -35,7 +35,7 @@ Protocol:
 *)
 
 (* our sockaddr *)
-let addr = `Tcp (Ipaddr.of_raw "\192\168\001\182", 8908)
+let addr = `Tcp (Ipaddr.of_raw "\192\168\001\019", 8908)
 let range start stop step =
   let len = (Float.div (Float.of_int (stop - start)) (Float.of_int step)) |> Float.ceil |> Float.to_int  in
   List.init len (fun i -> start +(i*step))
@@ -126,16 +126,24 @@ let handle_client flow _addr =
   client_loop flow 
 
 (* Eio boilerplate *)
+(*
 let run_server socket =
   Net.run_server socket handle_client
     ~on_error:(traceln "Error handling connection: %a" Fmt.exn)
+*)
 
 (* Eio Boilerplate x2 *)
 let main ~net ~addr =
   Switch.run @@ fun sw ->
+    let server = Net.listen net ~sw ~reuse_addr:true ~backlog:5 addr in
+    while true do
+      Net.accept_fork ~sw server ~on_error:(fun _ -> traceln "error on accept_fork") handle_client 
+    done
+  (*
   Fiber.fork ~sw (fun () -> 
     let server = Net.listen net ~sw ~reuse_addr:true ~backlog:5 addr in
     run_server server)
+  *)
 
 let () = 
     Eio_main.run @@ fun env -> main ~net:(Stdenv.net env) ~addr
