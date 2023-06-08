@@ -143,7 +143,7 @@ let main ~net ~addr =
   Switch.run @@ fun sw ->
     let server = Net.listen net ~sw ~reuse_addr:true ~backlog:128 addr in
     while true do
-      Net.accept_fork ~sw server ~on_error:(fun _ -> traceln "error on accept_fork") handle_client 
+      Net.accept_fork ~sw server ~on_error:(fun exn -> traceln "error on accept_fork %a" Fmt.exn exn) handle_client 
     done
   (*
   Fiber.fork ~sw (fun () -> 
