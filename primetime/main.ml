@@ -65,9 +65,7 @@ let rec client_loop flow =
   (* Make a buffer for reading from the connection with a 1MB max size *)
   let open Yojson.Basic.Util in
   let is_not_newline = (<>) '\n' in
-  let is_not_end_or_newline c ~buf= is_not_newline c && (Buf_read.at_end_of_input buf)  in
-
-
+  let is_not_end_or_newline c ~buf= is_not_newline c && not ( Buf_read.at_end_of_input buf)  in
 
   let buf = Buf_read.of_flow flow ~initial_size:100 ~max_size:1_000_000 in
 
