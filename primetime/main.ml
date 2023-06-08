@@ -105,9 +105,6 @@ let rec client_loop flow =
     Flow.copy_string response_payload flow; (* send malformed response *)
     traceln "%s" (Printf.sprintf "Response payload (malformed): %s for request number: %i" response_payload !res_counter);
     res_counter := !res_counter + 1;
-    
-
-    
 
     (*Flow.shutdown flow `All*)) (* shutdown conn *)
   else
@@ -143,7 +140,7 @@ let main ~net ~addr =
   Switch.run @@ fun sw ->
     let server = Net.listen net ~sw ~reuse_addr:true ~backlog:128 addr in
     while true do
-      Net.accept_fork ~sw server ~on_error:(fun exn -> traceln "error on accept_fork %a" Fmt.exn exn) handle_client 
+      Net.accept_fork ~sw server ~on_error:(fun exn -> traceln "error on accept_fork %a __POS__ in  __FUNCTION__" Fmt.exn exn) handle_client 
     done
   (*
   Fiber.fork ~sw (fun () -> 
