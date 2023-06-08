@@ -69,6 +69,7 @@ let rec client_loop flow =
 
   let buf = Buf_read.of_flow flow ~initial_size:100 ~max_size:1_000_000 in
   let s = Buf_read.line buf in (* the problem with multiple clients seems to be here *)
+  Fiber.yield ();
 
   traceln "%s" s;
   let json = 
@@ -140,7 +141,7 @@ let main ~net ~addr =
   Switch.run @@ fun sw ->
     let server = Net.listen net ~sw ~reuse_addr:true ~backlog:128 addr in
     while true do
-      Net.accept_fork ~sw server ~on_error:(fun exn -> traceln "error on accept_fork %a __POS__ in  __FUNCTION__" Fmt.exn exn) handle_client 
+      Net.accept_fork ~sw server ~on_error:(fun exn -> traceln "error on accept_fork %a" Fmt.exn exn) handle_client 
     done
   (*
   Fiber.fork ~sw (fun () -> 
