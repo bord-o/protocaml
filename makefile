@@ -12,7 +12,7 @@ run-smoketest:
 	dune exec smoketest
 
 run-primetime:
-	dune exec primetime
+	./primetime/main.exe
 
 clean:
 	rm -f ./smoketest/main.exe

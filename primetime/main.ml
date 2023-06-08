@@ -36,6 +36,7 @@ Protocol:
 
 (* our sockaddr *)
 let addr = `Tcp (Ipaddr.of_raw "\010\000\000\195", 8908)
+(*let addr = `Tcp (Ipaddr.of_raw "\192\168\001\019", 8908)*)
 let range start stop step =
   let len = (Float.div (Float.of_int (stop - start)) (Float.of_int step)) |> Float.ceil |> Float.to_int  in
   List.init len (fun i -> start +(i*step))
@@ -64,9 +65,14 @@ let rec client_loop flow =
   (* Make a buffer for reading from the connection with a 1MB max size *)
   let open Yojson.Basic.Util in
   let is_not_newline = (<>) '\n' in
+  let is_not_end_or_newline c ~buf= is_not_newline c && (Buf_read.at_end_of_input buf)  in
+
+
 
   let buf = Buf_read.of_flow flow ~initial_size:100 ~max_size:1_000_000 in
-  let s = Buf_read.take_while is_not_newline buf in
+
+  let s = Buf_read.take_while (is_not_end_or_newline ~buf) buf in (* the problem with multiple clients seems to be here *)
+
   traceln "%s" s;
   let json = 
     try Yojson.Basic.from_string s 
