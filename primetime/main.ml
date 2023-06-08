@@ -62,6 +62,7 @@ let isPrime n = match n with
 (* loop for handling user connection *)
 type response_res = {malformed: bool; pmethod: string; number: float}
 let rec client_loop flow =
+  let res_counter = ref 0 in
   (* Make a buffer for reading from the connection with a 1MB max size *)
   let open Yojson.Basic.Util in
 
@@ -100,8 +101,10 @@ let rec client_loop flow =
   if malformed then
     (traceln "malformed request recieved...";
     let response_payload = "{\"method\": \"malformed\", \"prime\": false}\n" in
+
     Flow.copy_string response_payload flow; (* send malformed response *)
-    traceln "%s" (Printf.sprintf "Response payload (malformed): %s" response_payload);
+    traceln "%s" (Printf.sprintf "Response payload (malformed): %s for request number: %i" response_payload !res_counter);
+    res_counter := !res_counter + 1;
     
 
     
@@ -117,8 +120,9 @@ let rec client_loop flow =
       false
     in
     let response_payload = Printf.sprintf "{\"method\": \"isPrime\", \"prime\": %b}\n" is_it_prime in
-    traceln "%s" (Printf.sprintf "Response payload: %s" response_payload);
     Flow.copy_string response_payload flow; (* send evaluated response *)
+    traceln "%s" (Printf.sprintf "Response payload: %s for request: %i" response_payload !res_counter);
+    res_counter := !res_counter + 1;
     client_loop flow
   )
 
