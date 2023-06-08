@@ -62,13 +62,15 @@ let isPrime n = match n with
 (* loop for handling user connection *)
 let res_counter = ref 0
 type response_res = {malformed: bool; pmethod: string; number: float}
+exception Malformed
+exception InvalidJson
 let rec client_loop flow =
   (* Make a buffer for reading from the connection with a 1MB max size *)
   let open Yojson.Basic.Util in
 
 
   let buf = Buf_read.of_flow flow ~initial_size:100 ~max_size:1_000_000 in
-  let s = Buf_read.line buf in (* the problem with multiple clients seems to be here *)
+  let s = try Buf_read.line buf with e -> traceln ~__POS__ "error on read: %a" Fmt.exn e; "" in (* the problem with multiple clients seems to be here *)
 
   traceln "%s" s;
   let json = 
@@ -76,7 +78,13 @@ let rec client_loop flow =
   with
     _ -> (
     (traceln "invalid json recieved...";
-    Yojson.Basic.from_string "{\"method\": \"malformed\", \"prime\": false}\n"))
+    let response_payload  = "{\"method\": \"malformed\", \"prime\": false}\n" in
+    Flow.copy_string response_payload flow; (* send malformed response *)
+    traceln "%s" (Printf.sprintf "Response payload (invalid_json): %s for request number: %i" response_payload !res_counter);
+    res_counter := !res_counter + 1;
+    Flow.shutdown flow `All; (* shutdown conn *)
+    raise InvalidJson))
+
   in
 
   (* parse the method field, a fail to parse will result in None *)
@@ -105,8 +113,9 @@ let rec client_loop flow =
     Flow.copy_string response_payload flow; (* send malformed response *)
     traceln "%s" (Printf.sprintf "Response payload (malformed): %s for request number: %i" response_payload !res_counter);
     res_counter := !res_counter + 1;
+    Flow.shutdown flow `All; (* shutdown conn *)
+    raise Malformed)
 
-    (*Flow.shutdown flow `All*)) (* shutdown conn *)
   else
   (
     traceln "%s" (Printf.sprintf "Method: %s, Number: %f, malformed %b" pmethod number malformed);
@@ -140,7 +149,7 @@ let main ~net ~addr =
   Switch.run @@ fun sw ->
     let server = Net.listen net ~sw ~reuse_addr:true ~backlog:128 addr in
     while true do
-      Net.accept_fork ~sw server ~on_error:(fun exn -> traceln "error on accept_fork %a" Fmt.exn exn) handle_client 
+      Net.accept_fork ~sw server ~on_error:(fun e -> traceln "error on accept_fork  %a..." Fmt.exn e; traceln "%s" __LOC__) handle_client 
     done
   (*
   Fiber.fork ~sw (fun () -> 
