@@ -60,16 +60,15 @@ let isPrime n = match n with
   
 
 (* loop for handling user connection *)
+let res_counter = ref 0
 type response_res = {malformed: bool; pmethod: string; number: float}
 let rec client_loop flow =
-  let res_counter = ref 0 in
   (* Make a buffer for reading from the connection with a 1MB max size *)
   let open Yojson.Basic.Util in
 
 
   let buf = Buf_read.of_flow flow ~initial_size:100 ~max_size:1_000_000 in
   let s = Buf_read.line buf in (* the problem with multiple clients seems to be here *)
-  Fiber.yield ();
 
   traceln "%s" s;
   let json = 
