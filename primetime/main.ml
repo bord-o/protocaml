@@ -65,7 +65,7 @@ let rec client_loop flow =
   let open Yojson.Basic.Util in
   let is_not_newline = (<>) '\n' in
 
-  let buf = Eio.Buf_read.of_flow flow ~initial_size:100 ~max_size:1_000_000 in
+  let buf = Buf_read.of_flow flow ~initial_size:100 ~max_size:1_000_000 in
   let s = Buf_read.take_while is_not_newline buf in
   traceln "%s" s;
   let json = 
@@ -135,7 +135,7 @@ let run_server socket =
 (* Eio Boilerplate x2 *)
 let main ~net ~addr =
   Switch.run @@ fun sw ->
-    let server = Net.listen net ~sw ~reuse_addr:true ~backlog:5 addr in
+    let server = Net.listen net ~sw ~reuse_addr:true ~backlog:128 addr in
     while true do
       Net.accept_fork ~sw server ~on_error:(fun _ -> traceln "error on accept_fork") handle_client 
     done
