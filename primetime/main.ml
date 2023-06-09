@@ -70,9 +70,8 @@ let rec client_loop flow =
 
 
   let buf = Buf_read.of_flow flow ~initial_size:100 ~max_size:1_000_000 in
-  let sseq = try Buf_read.lines buf with e -> traceln ~__POS__ "error on read: %a" Fmt.exn e; List.to_seq [""]  in (* the problem with multiple clients seems to be here *)
-  let s = (List.of_seq sseq) |> List.fold_left (^) "" in
-  
+  let s = try Buf_read.line buf with e -> traceln ~__POS__ "error on read: %a" Fmt.exn e; "" in (* the problem with multiple clients seems to be here *)
+
   traceln "%s" s;
   let json = 
     try Yojson.Basic.from_string s 
