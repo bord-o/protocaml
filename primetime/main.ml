@@ -1,10 +1,10 @@
 open Yojson.Safe.Util
 
-
 (*let addr = `Tcp (Eio.Net.Ipaddr.of_raw "\192\168\001\019", 8908)*)
 let addr = `Tcp (Eio.Net.Ipaddr.of_raw "\010\000\000\195", 8908)
 
 module P = struct
+  (* TODO make this generic for big int*)
   let range start stop step =
     let len = (Float.div (Float.of_int (stop - start)) (Float.of_int step)) |> Float.ceil |> Float.to_int  in
     List.init len (fun i -> start +(i*step))
@@ -41,10 +41,6 @@ let string_parse (json:string) =
       raise InvalidJson
     ) in
   s
-let json_parse (json: Yojson.Safe.t list) mem parser = 
-  match json |> filter_member mem |> parser with
-  | [] -> None
-  | x::_ -> Some(x)
 
 let validate_fields meth num =
   match meth, num with
@@ -54,8 +50,14 @@ let validate_fields meth num =
   | Some(_), None -> raise @@ Malformed "number"
   | _, _ -> raise @@ Malformed "all fields"
 
+let json_parse (json: Yojson.Safe.t list) mem parser = 
+  match json |> filter_member mem |> parser with
+  | [] -> None
+  | x::_ -> Some(x)
+
 let pmethod json = json_parse json "method" filter_string
 let pnumber json = json_parse json "number" filter_number
+
 
 let send_json (json: string) flow = 
   Eio.Flow.copy_string json flow
