@@ -1,4 +1,4 @@
 (executable
  (public_name primetime)
  (name main)
- (libraries eio eio_main yojson))
+ (libraries eio eio_main yojson zarith))
