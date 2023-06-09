@@ -97,7 +97,7 @@ let rec handle_client buf flow =
 let handler flow _addr = 
 
   Eio.traceln "handled connection" ;
-  let buf = Eio.Buf_read.of_flow ~max_size:1000 flow in
+  let buf = Eio.Buf_read.of_flow ~max_size:10000000 flow in
   while not @@ Eio.Buf_read.at_end_of_input buf do
 
     handle_client buf flow
