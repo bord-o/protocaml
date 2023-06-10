@@ -88,7 +88,7 @@ let rec handle_client buf flow db =
       in
         
       let results = Hashtbl.fold table_aux db [] in
-        let mean = try Int32.div (List.fold_left (Int32.add) 0l results) (Int32.of_int(List.length results)) with End_of_file -> 0l in
+        let mean = try Int32.div (List.fold_left (Int32.add) 0l results) (Int32.of_int(List.length results)) with Division_by_zero -> 0l in
 
       traceln "calculated mean: %i" @@ Int32.to_int mean;
       let return_bytes = Bytes.make 4 'X' in
