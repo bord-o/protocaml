@@ -1,11 +1,11 @@
-EXE = smoketest primetime
+EXE = smoketest primetime means
 
 all: clean
 	
 	dune build $(EXE)
 	cp ./_build/default/smoketest/main.exe ./bin/smoketest
 	cp ./_build/default/primetime/main.exe ./bin/primetime
-	cp ./_build/default/primetime/main.exe ./bin/means
+	cp ./_build/default/means/main.exe ./bin/means
 
 	chmod +x ./bin/smoketest
 	chmod +x ./bin/means
