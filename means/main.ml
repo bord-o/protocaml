@@ -84,15 +84,15 @@ let rec handle_client buf flow db =
       let time1 = n1 in
       let time2 = n2 in
       let table_aux timestamp price acc =
-        if timestamp <= time2 && timestamp >= time1 then price::acc else acc
+        if timestamp <= time2 && timestamp >= time1 then Int32.to_int(price)::acc else acc
       in
         
       let results = Hashtbl.fold table_aux db [] in
-        let mean = try Int32.div (List.fold_left (Int32.add) 0l results) (Int32.of_int(List.length results)) with Division_by_zero -> 0l in
+      let mean = try Int.div (List.fold_left (+) 0 results) (List.length results) with Division_by_zero -> 0 in
 
-      traceln "calculated mean: %i" @@ Int32.to_int mean;
+      traceln "calculated mean: %i" @@  mean;
       let return_bytes = Bytes.make 4 'X' in
-      Bytes.set_int32_be return_bytes 0 mean;
+      Bytes.set_int32_be return_bytes 0 @@ Int32.of_int mean;
       let return_string = String.of_bytes return_bytes in
       Flow.copy_string return_string flow
 
