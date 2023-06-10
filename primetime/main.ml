@@ -110,16 +110,6 @@ let handler flow _addr =
   done
   
 
-  (* ok so we have two main paths. send a successful response
-    or send a malformed response
-  *)
-  (*
-  Eio.Flow.copy_string "Hi from server" flow;
-  Eio.Time.sleep clock 5.0;
-  Eio.Flow.copy_string "Bye from server" flow;
-  *)
-
-
 let main ~net ~addr = 
   let main_error e = match e with
   | End_of_file -> ()
