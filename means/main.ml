@@ -3,7 +3,8 @@ open Eio
 let addr = `Tcp (Net.Ipaddr.of_raw "\010\000\000\195", 8908)
 
 let rec handle_client buf flow =
-  let s = Buf_read.line buf in
+  (* this function is called by handler and handles the case of multiple requests on one connection*)
+  let s = Buf_read.take 9 buf in
   traceln "Req: %a" Fmt.string s;
 
   try
