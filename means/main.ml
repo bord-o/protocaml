@@ -30,7 +30,7 @@ let display_of_req r =
 let rec handle_client buf flow db =
   (* this function is called by handler and handles the case of multiple requests on one connection*)
   let s =  Buf_read.take 9 buf in
-  traceln "Req: %a" Fmt.string s;
+  traceln "Request recieved ";
 
   try
     let l = String.length s in
@@ -53,7 +53,7 @@ let rec handle_client buf flow db =
     
     let new_req = {op=op; i=n1;j=n2} in
     let ds = display_of_req new_req in
-    traceln "New request built: %a" Fmt.string ds;
+    traceln "New request: %a" Fmt.string ds;
 
     (* 
     TODO: all of the logic goes here.
