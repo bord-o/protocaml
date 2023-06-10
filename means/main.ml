@@ -96,9 +96,7 @@ let rec handle_client buf flow db =
       Flow.copy_string return_string flow
 
     );
-
   
-    Flow.copy_string s flow;
     traceln "Success in handler, still open to requests";
 
     handle_client buf flow db
