@@ -112,9 +112,8 @@ let rec handle_client buf flow db =
 let handler flow _addr =
   traceln "handled connection";
   let buf = Buf_read.of_flow ~max_size:10000000 flow in
+  let db = Hashtbl.create 100 in
   while not @@ Buf_read.at_end_of_input buf do
-    traceln "New clent, creating new hashtable...\n\n";
-    let db = Hashtbl.create 100 in
     handle_client buf flow db
   done
 
