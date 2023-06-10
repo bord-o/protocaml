@@ -18,8 +18,8 @@ type req = {
 let display_of_req r =
   let {op;i;j} = r in
   let ds = 
-  (if op=Query then "Query" else "Insert") ^
-  (Int32.to_string i) ^
+  (if op=Query then "Query" else "Insert") ^ " " ^
+  (Int32.to_string i) ^ " " ^
   (Int32.to_string j)
   in ds
 
