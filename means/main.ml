@@ -2,13 +2,56 @@ open Eio
 (*let addr = `Tcp (Eio.Net.Ipaddr.of_raw "\192\168\001\019", 8908)*)
 let addr = `Tcp (Net.Ipaddr.of_raw "\010\000\000\195", 8908)
 
+(*
+let chars_of_str s =
+  String.fold_right (fun c l  -> c::l) s []
+*)
+
+exception RequestLength of int
+exception UnknownOperation of char
+type operation = Insert | Query
+type req = {
+  op: operation;
+  i: int32;
+  j: int32
+}
+let display_of_req r =
+  let {op;i;j} = r in
+  let ds = 
+  (if op=Query then "Query" else "Insert") ^
+  (Int32.to_string i) ^
+  (Int32.to_string j)
+  in ds
+
 let rec handle_client buf flow =
   (* this function is called by handler and handles the case of multiple requests on one connection*)
-  let s = Buf_read.take 9 buf in
+  let s =  Buf_read.take 9 buf in
   traceln "Req: %a" Fmt.string s;
 
   try
+    let l = String.length s in
+    if l <> 9 then raise @@ RequestLength l else ();
+
+    let op = 
+      let first = String.get s 0 in
+      match first with
+      | 'Q' | 'I' -> if first='Q' then Query else Insert
+      | x -> raise @@ UnknownOperation x
+    in
+    let n1 = 
+      let f = String.sub s 1 4  in
+      Int32.of_string @@ "0b" ^ f
+    in
+    let n2 = 
+      let f = String.sub s 5 4  in
+      Int32.of_string @@ "0b" ^ f
+    in
+    let new_req = {op=op; i=n1;j=n2} in
+    let ds = display_of_req new_req in
+    traceln "New request built: %a" Fmt.string ds;
+    Flow.copy_string s flow;
     traceln "Success in handler, still open to requests";
+
     handle_client buf flow
   with e -> (
     let cleanup e =
