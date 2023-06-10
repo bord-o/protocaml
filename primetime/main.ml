@@ -2,6 +2,7 @@ open Yojson.Safe.Util
 
 (*let addr = `Tcp (Eio.Net.Ipaddr.of_raw "\192\168\001\019", 8908)*)
 let addr = `Tcp (Eio.Net.Ipaddr.of_raw "\010\000\000\195", 8908)
+let _bigreq = "{\"method\":\"isPrime\",\"number\":929627819581997065843982472548109446544378918505760532598,\"bignumber\":true}"
 
 module P = struct
   (* TODO make this generic for big int*)
@@ -42,6 +43,18 @@ let string_parse (json:string) =
     ) in
   s
 
+
+let pmethod json= 
+  json |> member "method" |> to_string_option 
+
+let pnumber json = 
+  let mem = json |> member "number" in
+  match mem with
+  | `Intlit _ -> failwith "TODO parse intlit int to Z.of_string"
+  | `Int _ | `Float _-> to_number_option mem
+  | _ -> raise @@ Yojson.Json_error "number wasnt float, int, or intlit"
+  
+
 let validate_fields meth num =
   match meth, num with
   | Some(m), Some(_) when not @@ (String.equal m "isPrime") -> raise @@ IncorrectMethod m
@@ -49,15 +62,6 @@ let validate_fields meth num =
   | None, Some(_) -> raise @@ Malformed "method"
   | Some(_), None -> raise @@ Malformed "number"
   | _, _ -> raise @@ Malformed "all fields"
-
-let json_parse (json: Yojson.Safe.t list) mem parser = 
-  match json |> filter_member mem |> parser with
-  | [] -> None
-  | x::_ -> Some(x)
-
-let pmethod json = json_parse json "method" filter_string
-let pnumber json = json_parse json "number" filter_number
-
 
 let send_json (json: string) flow = 
   Eio.Flow.copy_string json flow
@@ -71,8 +75,8 @@ let rec handle_client buf flow =
 
   try
     let parse_res = string_parse s in
-    let rnumber' = pnumber [parse_res] in
-    let rmethod' = pmethod [parse_res] in
+    let rnumber' = pnumber parse_res in
+    let rmethod' = pmethod parse_res in
 
     let (_, rnumber ) = validate_fields rmethod'  rnumber' in
   
