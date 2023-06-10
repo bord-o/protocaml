@@ -4,7 +4,6 @@ open Eio
 (* our sockaddr *)
 let addr = `Tcp (Ipaddr.of_raw "\192\168\001\182", 8908)
 
-
 (* loop for handling user connection *)
 let rec client_loop flow histbuf =
   (* Make a buffer for reading from the connection with a 1MB max size *)
