@@ -77,6 +77,7 @@ let rec handle_client buf flow db =
     | Insert -> (
       let asset = {timestamp=n1; price=n2} in
       Hashtbl.add db asset.timestamp asset.price;
+      traceln "inserted asset into table"
         
     )
     | Query -> (
