@@ -40,11 +40,11 @@ let rec handle_client buf flow =
     in
     let n1 = 
       let f = String.sub s 1 4  in
-      Int32.of_string @@ "0b" ^ f
+      String.get_int32_be f 0
     in
     let n2 = 
       let f = String.sub s 5 4  in
-      Int32.of_string @@ "0b" ^ f
+      String.get_int32_be f 0
     in
     let new_req = {op=op; i=n1;j=n2} in
     let ds = display_of_req new_req in
