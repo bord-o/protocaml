@@ -50,7 +50,7 @@ let pmethod json=
 let pnumber json = 
   let mem = json |> member "number" in
   match mem with
-  | `Intlit _ -> failwith "TODO parse intlit int to Z.of_string"
+  | `Intlit n -> Some(n |> Z.of_string |> Z.to_float)
   | `Int _ | `Float _-> to_number_option mem
   | _ -> raise @@ Yojson.Json_error "number wasnt float, int, or intlit"
   
