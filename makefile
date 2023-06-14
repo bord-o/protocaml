@@ -1,6 +1,6 @@
 EXE = smoketest primetime means chat
 
-all: clean
+all: clean fmt
 	
 	dune build $(EXE)
 	cp ./_build/default/smoketest/main.exe ./bin/smoketest
@@ -13,6 +13,9 @@ all: clean
 	chmod +x ./bin/primetime
 	chmod +x ./bin/chat
 
+fmt:
+	dune fmt
+
 run-smoketest:
 	./bin/smoketest
 
@@ -21,7 +24,6 @@ run-primetime:
 
 run-means:
 	./bin/means
-
 
 run-chat:
 	./bin/chat
