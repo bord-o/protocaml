@@ -1,4 +1,4 @@
-EXE = smoketest primetime means chat
+EXE = smoketest primetime means chat unusualdb
 
 
 all: clean fmt
@@ -7,11 +7,13 @@ all: clean fmt
 	cp ./_build/default/primetime/main.exe ./bin/primetime
 	cp ./_build/default/means/main.exe ./bin/means
 	cp ./_build/default/chat/main.exe ./bin/chat
+	cp ./_build/default/unusualdb/main.exe ./bin/unusualdb
 
 	chmod +x ./bin/smoketest
 	chmod +x ./bin/means
 	chmod +x ./bin/primetime
 	chmod +x ./bin/chat
+	chmod +x ./bin/unusualdb
 
 dev: clean fmt
 	dune build $(EXE) --profile=release
@@ -19,11 +21,13 @@ dev: clean fmt
 	cp ./_build/default/primetime/main.exe ./bin/primetime
 	cp ./_build/default/means/main.exe ./bin/means
 	cp ./_build/default/chat/main.exe ./bin/chat
+	cp ./_build/default/unusualdb/main.exe ./bin/unusualdb
 
 	chmod +x ./bin/smoketest
 	chmod +x ./bin/means
 	chmod +x ./bin/primetime
 	chmod +x ./bin/chat
+	chmod +x ./bin/unusualdb
 fmt:
 	dune fmt
 
@@ -38,6 +42,9 @@ run-means:
 
 run-chat:
 	./bin/chat
+
+run-unusualdb:
+	./bin/unusualdb
 
 clean:
 	rm -f ./bin/smoketest
