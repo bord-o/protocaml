@@ -39,8 +39,8 @@ type 'a switch_environment = {
   sw : Eio.Switch.t;
 }
 
-let addr = `Tcp (Net.Ipaddr.of_raw "\192\168\001\182", 8908)
-(*let addr = `Tcp (Net.Ipaddr.of_raw "\192\168\001\211", 8908)*)
+(* let addr = `Tcp (Net.Ipaddr.of_raw "\192\168\001\182", 8908) *)
+let addr = `Tcp (Net.Ipaddr.of_raw "\192\168\001\211", 8908)
 
 (* let addr = `Tcp (Net.Ipaddr.of_raw "\010\000\000\195", 8908) *)
 (* ip: 131.150.169.142 *)
@@ -153,11 +153,12 @@ let handle_conn ~sw_env flow _addr =
   Flow.copy_string welcome flow;
   (* welcome user and ask for name *)
   let buf = Buf_read.of_flow ~max_size:10000000 flow in
+  let req_flow = flow in
 
   (* make buffer for reading *)
   while not @@ Buf_read.at_end_of_input buf do
     (* keep handling requests until the user dc's or we get eof *)
-    handle_req buf flow sw_env None
+    handle_req buf req_flow sw_env None
   done
 
 let main ~net ~addr =
